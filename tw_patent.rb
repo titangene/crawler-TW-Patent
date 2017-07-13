@@ -35,6 +35,24 @@ find_field('_0_7_o_1').find("option[value='20']").click
 page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 sleep(3)
 
+def print_Patents()
+  # 列印所有專利資料
+  patents = all('tr.sumtr1')
+  patents.each do |patent|
+    puts "專利編號：" + patent.find('td.sumtd2_PN a').text
+    puts "專利名稱：" + patent.find('td.sumtd2_TI').text
+    # puts "申請日：" + patent.find('td.sumtd2_AD').text
+    # puts "國際分類號/IPC：" + patent.find('td.sumtd2_IC').text
+    # puts "設計分類號/LOC：" + patent.find('td.sumtd2_IQ').text
+    # puts "發明人：" + patent.find('td.sumtd2_IV').text
+    # puts "申請人：" + patent.find('td.sumtd2_PA').text
+    # puts "參考文獻：" + patent.find('td.sumtd2_CI').text
+    # puts "專利權始日：" + patent.find('td.sumtd2_ID').text
+    # puts "專利權止日：" + patent.find('td.sumtd2_ID').text
+    puts "---------------------------------"
+  end
+end
+
 # 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
 pages = find("td.content font[style='color:red']:nth-child(3)").text
 current_page = pages.scan(/(\d+)/)[0]   # scan()：Regex global
@@ -42,18 +60,24 @@ puts "第 #{current_page} 頁"
 all_page = pages.scan(/(\d+)/)[1]
 puts "共 #{all_page} 頁"
 
-# 列印所有專利資料
-patents = all('tr.sumtr1')
-patents.each do |patent|
-  puts "專利編號：" + patent.find('td.sumtd2_PN a').text
-  puts "專利名稱：" + patent.find('td.sumtd2_TI').text
-  # puts "申請日：" + patent.find('td.sumtd2_AD').text
-  # puts "國際分類號/IPC：" + patent.find('td.sumtd2_IC').text
-  # puts "設計分類號/LOC：" + patent.find('td.sumtd2_IQ').text
-  # puts "發明人：" + patent.find('td.sumtd2_IV').text
-  # puts "申請人：" + patent.find('td.sumtd2_PA').text
-  # puts "參考文獻：" + patent.find('td.sumtd2_CI').text
-  # puts "專利權始日：" + patent.find('td.sumtd2_ID').text
-  # puts "專利權止日：" + patent.find('td.sumtd2_ID').text
-  puts "---------------------------------"
+print_Patents()
+
+def get_CurrentPage()
+  # 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
+  pages = find("td.content font[style='color:red']:nth-child(3)").text
+  current_page = pages.scan(/(\d+)/)[0]
+  puts "第 #{current_page} 頁"
+end
+
+# 爬到各分頁的專利資料
+print_pages = 4
+print_pages--   # 前面已做一次，所以要先 -1
+i = 0
+while i < print_pages do
+# while i < all_page - 1 do
+  page.execute_script("document.getElementsByName('_IMG_次頁')[0].click()")
+  sleep(2)
+  get_CurrentPage()
+  print_Patents()
+  i += 1
 end
