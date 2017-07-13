@@ -35,6 +35,13 @@ find_field('_0_7_o_1').find("option[value='20']").click
 page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 sleep(3)
 
+# 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
+pages = find("td.content font[style='color:red']:nth-child(3)").text
+current_page = pages.scan(/(\d+)/)[0]   # scan()：Regex global
+puts "第 #{current_page} 頁"
+all_page = pages.scan(/(\d+)/)[1]
+puts "共 #{all_page} 頁"
+
 # 列印所有專利資料
 patents = all('tr.sumtr1')
 patents.each do |patent|
