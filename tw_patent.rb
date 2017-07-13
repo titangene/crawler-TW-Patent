@@ -34,3 +34,19 @@ find_field('_0_7_o_1').find("option[value='20']").click
 # 開始搜尋
 page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 sleep(3)
+
+# 列印所有專利資料
+patents = all('tr.sumtr1')
+patents.each do |patent|
+  puts "專利編號：" + patent.find('td.sumtd2_PN a').text
+  puts "專利名稱：" + patent.find('td.sumtd2_TI').text
+  # puts "申請日：" + patent.find('td.sumtd2_AD').text
+  # puts "國際分類號/IPC：" + patent.find('td.sumtd2_IC').text
+  # puts "設計分類號/LOC：" + patent.find('td.sumtd2_IQ').text
+  # puts "發明人：" + patent.find('td.sumtd2_IV').text
+  # puts "申請人：" + patent.find('td.sumtd2_PA').text
+  # puts "參考文獻：" + patent.find('td.sumtd2_CI').text
+  # puts "專利權始日：" + patent.find('td.sumtd2_ID').text
+  # puts "專利權止日：" + patent.find('td.sumtd2_ID').text
+  puts "---------------------------------"
+end
