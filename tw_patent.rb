@@ -29,5 +29,8 @@ patent_fields = all('table.TERM_0_11_S input')
 patent_fields.each do |patent_field|
   patent_field.set(true)
 end
-
+# 每頁顯示筆數：10/20/30/40/50/100
+find_field('_0_7_o_1').find("option[value='20']").click
+# 開始搜尋
+page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 sleep(3)
