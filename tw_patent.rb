@@ -15,3 +15,14 @@ visit(url)
 # 進入 簡易檢索 頁面
 find('ul#css3menu1 li.topmenu:nth-child(3) a').click
 sleep(3)
+
+# 找出專利公開日在 2016/1/1~2017/1/1 之間的所有專利
+# 年：1950 ~ 2017
+find_field('_1_2_r_0_4').find("option[value='2016']").click
+find_field('_1_2_r_4_2').find("option[value='01']").click
+find_field('_1_2_r_6_2').find("option[value='01']").click
+find_field('_1_2_r_8_4').find("option[value='2017']").click
+find_field('_1_2_r_12_2').find("option[value='01']").click
+find_field('_1_2_r_14_2').find("option[value='01']").click
+
+sleep(3)
