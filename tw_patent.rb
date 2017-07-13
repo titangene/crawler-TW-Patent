@@ -24,5 +24,10 @@ find_field('_1_2_r_6_2').find("option[value='01']").click
 find_field('_1_2_r_8_4').find("option[value='2017']").click
 find_field('_1_2_r_12_2').find("option[value='01']").click
 find_field('_1_2_r_14_2').find("option[value='01']").click
+# 將所有 專利欄位 打勾
+patent_fields = all('table.TERM_0_11_S input')
+patent_fields.each do |patent_field|
+  patent_field.set(true)
+end
 
 sleep(3)
