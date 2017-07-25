@@ -63,13 +63,19 @@ find_field('_1_2_r_6_2').find("option[value='#{d_min}']").click
 find_field('_1_2_r_8_4').find("option[value='#{y_max}']").click
 find_field('_1_2_r_12_2').find("option[value='#{m_max}']").click
 find_field('_1_2_r_14_2').find("option[value='#{d_max}']").click
+puts "專利公開日：#{y_min}/#{m_min}/#{d_min} ~ #{y_max}/#{m_max}/#{d_max}"
+
 # 將所有 專利欄位 打勾
 patent_fields = all('table.TERM_0_11_S input')
 patent_fields.each do |patent_field|
   patent_field.set(true)
 end
+puts "專利欄位：全"
+
 # 每頁顯示筆數：10/20/30/40/50/100
 find_field('_0_7_o_1').find("option[value='#{@items_per_page}']").click
+puts "每頁顯示筆數：#{@items_per_page}"
+
 # 開始搜尋
 page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 _sleep(3, 21, 'tr.sumtr1')
@@ -138,7 +144,6 @@ patent_count = find("td.content font[style='color:red']:nth-child(2)").text
 pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
 all_page = pages[1]
 puts "--- 共 #{patent_count} 筆 | 共 #{all_page} 頁 ---"
-exit
 
 i = _start_page
 while i <= print_pages do
