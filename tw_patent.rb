@@ -15,13 +15,17 @@ inventor, applicant, reference, patent_start_date, patent_stop_date)
 values(?, ?, ?, ?, ?, ?, ?, ?, null, null)"
 @db_insert = client.prepare(SQL)
 
-print_pages = ARGV[0]
+print_pages = ARGV[0]   # 爬取頁數
 print_pages ||= 1
 print_pages = print_pages.to_i
 
-@items_per_page = ARGV[1]
+@items_per_page = ARGV[1]   # 每頁顯示筆數
 @items_per_page ||= 10
 @items_per_page = @items_per_page.to_i
+
+@start_page = ARGV[2]  # 起始爬取頁面
+@start_page ||= 1
+@start_page = @start_page.to_i
 
 if @items_per_page != 10 && @items_per_page != 20 && @items_per_page != 30 &&
    @items_per_page != 40 && @items_per_page != 50 && @items_per_page != 100
@@ -29,9 +33,10 @@ if @items_per_page != 10 && @items_per_page != 20 && @items_per_page != 30 &&
   exit
 end
 
-if print_pages == 1
+if print_pages == 1 || @start_page == 1
   puts "value 1: Please input the number of pages printed (optional), Default: 1"
   puts "value 2: Please input items per page (10/20/30/40/50/100), Default: 10"
+  puts "value 2: Please input start crawling the page (optional), Default: 1"
 end
 
 # 中華民國專利資訊檢索系統 首頁
@@ -68,59 +73,74 @@ def print_Patents()
   patents = all('tr.sumtr1')
   patents.each_with_index do |patent, index|
     _no = index + 1 + (@p_page - 1) * @items_per_page
-    id = patent.find('td.sumtd2_PN a').text
-    name = patent.find('td.sumtd2_TI').text
-    application_date = patent.find('td.sumtd2_AD').text
-    ipc = patent.find('td.sumtd2_IC').text
-    loc = patent.find('td.sumtd2_IQ').text
-    inventor = patent.find('td.sumtd2_IV').text
-    applicant = patent.find('td.sumtd2_PA').text
-    reference = patent.find('td.sumtd2_CI').text
+    _no = "%04d" % _no
+    if @start_page <= _no.to_i
+      id = patent.find('td.sumtd2_PN a').text
+      name = patent.find('td.sumtd2_TI').text
+      application_date = patent.find('td.sumtd2_AD').text
+      ipc = patent.find('td.sumtd2_IC').text
+      loc = patent.find('td.sumtd2_IQ').text
+      inventor = patent.find('td.sumtd2_IV').text
+      applicant = patent.find('td.sumtd2_PA').text
+      reference = patent.find('td.sumtd2_CI').text
 
-    @db_insert.execute(id, name, application_date, ipc, loc, inventor, 
-      applicant, reference)
+      puts "No.#{_no}: #{id}"  # 專利編號
 
-    puts "-- No. #{_no} ------------------------"
-    puts "專利編號：" + id
-    # puts "專利名稱：" + name
-    # puts "申請日：" + application_date
-    # puts "國際分類號/IPC：" + IPC
-    # puts "設計分類號/LOC：" + LOC
-    # puts "發明人：" + inventor
-    # puts "申請人：" + applicant
-    # puts "參考文獻：" + reference
-    # puts "專利權始日：" + patent.find('td.sum').text
-    # puts "專利權止日：" + patent.find('td.sum').text
+      @db_insert.execute(id, name, application_date, ipc, loc, inventor, 
+        applicant, reference)
+      
+      # puts "專利名稱：" + name
+      # puts "申請日：" + application_date
+      # puts "國際分類號/IPC：" + IPC
+      # puts "設計分類號/LOC：" + LOC
+      # puts "發明人：" + inventor
+      # puts "申請人：" + applicant
+      # puts "參考文獻：" + reference
+      # puts "專利權始日：" + patent.find('td.sum').text
+      # puts "專利權止日：" + patent.find('td.sum').text
+    end
   end
 end
 
 def get_CurrentPage()
   # 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
-  pages = find("td.content font[style='color:red']:nth-child(3)").text
-  current_page = pages.split("/")[0]
+  pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
+  current_page = pages[0]
   puts "============ 第 #{current_page} 頁 ============="
+end
+
+# 設定起始爬取頁面
+if @start_page == 1
+  _start_page = 1
+  @p_page = 1
+else
+  _page_quotient = @start_page / 100
+  _page_remainder = @start_page % 100
+
+  _start_page = (_page_remainder != 0 && _page_remainder < 100) ? 
+    _page_quotient + 1 : _page_quotient
+  @p_page = _start_page
+  # 跳頁
+  find('input.jpage').set(_start_page)
+  find("td[valign='bottom'] input[title='顯示結果']").click
+  sleep(3)
 end
 
 # 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
 pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
-current_page = pages[0]   # scan()：Regex global
-puts "第 #{current_page} 頁"
 all_page = pages[1]
-puts "共 #{all_page} 頁"
+puts "------------ 共 #{all_page} 頁 ------------"
 
-@p_page = 1
-print_Patents()
-
-
-# 爬到各分頁的專利資料
-print_pages--   # 前面已做一次，所以要先 -1
-i = 1
-while i < print_pages do
+i = _start_page
+while i <= print_pages do
 # while i < all_page - 1 do
-  page.execute_script("document.getElementsByName('_IMG_次頁')[0].click()")
-  sleep(2)
   get_CurrentPage()
+  if _start_page <= i
+    print_Patents()
+  end
+  # 下一頁
   @p_page += 1
-  print_Patents()
+  page.execute_script("document.getElementsByName('_IMG_次頁')[0].click()")
+  sleep(3)
   i += 1
 end
