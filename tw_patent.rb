@@ -33,10 +33,16 @@ if @items_per_page != 10 && @items_per_page != 20 && @items_per_page != 30 &&
   exit
 end
 
-if print_pages == 1 || @start_page == 1
+if print_pages == 1
   puts "value 1: Please input the number of pages printed (optional), Default: 1"
+end
+
+if @items_per_page == 10
   puts "value 2: Please input items per page (10/20/30/40/50/100), Default: 10"
-  puts "value 2: Please input start crawling the page (optional), Default: 1"
+end
+
+if @start_page == 1
+  puts "value 3: Please input start crawling the page (optional), Default: 1"
 end
 
 # 中華民國專利資訊檢索系統 首頁
@@ -103,7 +109,7 @@ def print_Patents()
 end
 
 def get_CurrentPage()
-  # 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
+  # 抓取到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
   pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
   current_page = pages[0]
   puts "============ 第 #{current_page} 頁 ============="
@@ -126,10 +132,13 @@ else
   sleep(3)
 end
 
-# 抓取到的內容："1/12462"，使用 Regex 可分為 目前頁數 / 總頁數
+# 搜尋到的專利總筆數
+patent_count = find("td.content font[style='color:red']:nth-child(2)").text
+# 爬到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
 pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
 all_page = pages[1]
-puts "------------ 共 #{all_page} 頁 ------------"
+puts "--- 共 #{patent_count} 筆 | 共 #{all_page} 頁 ---"
+exit
 
 i = _start_page
 while i <= print_pages do
