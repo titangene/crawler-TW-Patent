@@ -95,6 +95,13 @@ def print_Patents()
       inventor = patent.find('td.sumtd2_IV').text
       applicant = patent.find('td.sumtd2_PA').text
       reference = patent.find('td.sumtd2_CI').text
+      
+      ipc = ipc == "" ? "NULL" : ipc
+      loc = loc == "" ? "NULL" : loc
+
+      if reference == "" || reference == "無"
+        reference = "NULL"
+      end
 
       puts "No.#{_no}: #{id}"  # 專利編號
 
