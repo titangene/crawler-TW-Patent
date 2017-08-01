@@ -92,18 +92,24 @@ def print_Patents()
       inventor = patent.find('td.sumtd2_IV').text
       applicant = patent.find('td.sumtd2_PA').text
       reference = patent.find('td.sumtd2_CI').text
-      
-      ipc = ipc == "" ? nil : ipc
-      loc = loc == "" ? nil : loc
 
-      if reference == "" || reference == "無"
-        reference = nil
+      # 如果 DB 沒有此專利就新增，如果已有就更新
+      if @db_select.execute(id).count == 0
+        ipc = ipc == "" ? nil : ipc
+        loc = loc == "" ? nil : loc
+
+        if reference == "" || reference == "無"
+          reference = nil
+        end
+
+        @db_insert.execute(id, name, application_date, ipc, loc, inventor, 
+          applicant, reference)
+        puts "No.#{_no}: #{id} - Insert"  # 專利編號
+      else
+        @db_update.execute(name, application_date, ipc, loc, inventor, 
+          applicant, reference, id)
+        puts "No.#{_no}: #{id} - Update"  # 專利編號
       end
-
-      puts "No.#{_no}: #{id}"  # 專利編號
-
-      @db_insert.execute(id, name, application_date, ipc, loc, inventor, 
-        applicant, reference)
       
       # puts "專利名稱：" + name
       # puts "申請日：" + application_date
