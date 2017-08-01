@@ -87,7 +87,7 @@ def print_Patents()
     _no = index + 1 + (@p_page - 1) * @items_per_page
     _no = "%04d" % _no
     if @start_page <= _no.to_i
-      id = "TW" + patent.find('td.sumtd2_PN a').text
+      id = patent.find('td.sumtd2_PN a').text
       name = patent.find('td.sumtd2_TI').text
       application_date = patent.find('td.sumtd2_AD').text
       ipc = patent.find('td.sumtd2_IC').text
@@ -133,10 +133,10 @@ if @start_page == 1
   _start_page = 1
   @p_page = 1
 else
-  _page_quotient = @start_page / 100
-  _page_remainder = @start_page % 100
+  _page_quotient = @start_page / @items_per_page
+  _page_remainder = @start_page % @items_per_page
 
-  _start_page = (_page_remainder != 0 && _page_remainder < 100) ? 
+  _start_page = (_page_remainder != 0 && _page_remainder < @items_per_page) ? 
     _page_quotient + 1 : _page_quotient
   @p_page = _start_page
   # 跳頁
