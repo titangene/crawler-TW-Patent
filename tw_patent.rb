@@ -9,11 +9,11 @@ Capybara.register_driver :selenium do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)
 end
 
-client = Mysql2::Client.new(OPTIONS)
+mysql_db = Mysql2::Client.new(OPTIONS)
 SQL = "insert into crawler(id, name, application_date, IPC, LOC, 
 inventor, applicant, reference, patent_start_date, patent_stop_date) 
-values(?, ?, ?, ?, ?, ?, ?, ?, null, null)"
-@db_insert = client.prepare(SQL)
+values(?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)"
+@db_insert = mysql_db.prepare(SQL)
 
 print_pages = ARGV[0]   # 爬取頁數
 print_pages ||= 1
@@ -87,7 +87,7 @@ def print_Patents()
     _no = index + 1 + (@p_page - 1) * @items_per_page
     _no = "%04d" % _no
     if @start_page <= _no.to_i
-      id = patent.find('td.sumtd2_PN a').text
+      id = "TW" + patent.find('td.sumtd2_PN a').text
       name = patent.find('td.sumtd2_TI').text
       application_date = patent.find('td.sumtd2_AD').text
       ipc = patent.find('td.sumtd2_IC').text
@@ -96,11 +96,11 @@ def print_Patents()
       applicant = patent.find('td.sumtd2_PA').text
       reference = patent.find('td.sumtd2_CI').text
       
-      ipc = ipc == "" ? "NULL" : ipc
-      loc = loc == "" ? "NULL" : loc
+      ipc = ipc == "" ? nil : ipc
+      loc = loc == "" ? nil : loc
 
       if reference == "" || reference == "無"
-        reference = "NULL"
+        reference = nil
       end
 
       puts "No.#{_no}: #{id}"  # 專利編號
