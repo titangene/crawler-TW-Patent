@@ -1,13 +1,4 @@
 require 'capybara'
-require 'mysql2'
-
-OPTIONS = {
-  :host     => 'localhost', # 主機
-  :username => 'root',      # 使用者名稱
-  :password => 'titan',     # 密碼
-  :database => 'tw_patent', # 資料庫
-  :encoding => 'utf8'       # 編碼
-}
 
 def _sleep(t, t_max, css)
   time = 0

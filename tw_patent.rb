@@ -1,4 +1,5 @@
 require_relative 'common'
+require_relative 'mysql_tw_patent'
 require 'capybara/dsl'
 require 'pry-byebug'
 include Capybara::DSL
@@ -9,11 +10,7 @@ Capybara.register_driver :selenium do |app|
   Capybara::Selenium::Driver.new(app, :browser => :chrome)
 end
 
-mysql_db = Mysql2::Client.new(OPTIONS)
-SQL = "insert into crawler(id, name, application_date, IPC, LOC, 
-inventor, applicant, reference, patent_start_date, patent_stop_date) 
-values(?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)"
-@db_insert = mysql_db.prepare(SQL)
+mySQL_Prepare()
 
 print_pages = ARGV[0]   # 爬取頁數
 print_pages ||= 1
