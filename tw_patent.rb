@@ -77,6 +77,8 @@ puts "每頁顯示筆數：#{@items_per_page}"
 page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 _sleep(3, 21, 'tr.sumtr1')
 
+@referenceFilterAry = ["", " ", "無", "TW無"]
+
 def print_Patents()
   # 列印所有專利資料
   patents = all('tr.sumtr1')
@@ -93,15 +95,19 @@ def print_Patents()
       applicant = patent.find('td.sumtd2_PA').text
       reference = patent.find('td.sumtd2_CI').text
 
+      # 如果沒有該欄位沒資料就設為 NULL
+      ipc = ipc == "" ? nil : ipc
+      loc = loc == "" ? nil : loc
+
+      @referenceFilterAry.each { |referenceFilter|
+        if reference == referenceFilter
+          reference = nil
+          break
+        end
+      }
+
       # 如果 DB 沒有此專利就新增，如果已有就更新
       if @db_select.execute(id).count == 0
-        ipc = ipc == "" ? nil : ipc
-        loc = loc == "" ? nil : loc
-
-        if reference == "" || reference == "無"
-          reference = nil
-        end
-
         @db_insert.execute(id, name, application_date, ipc, loc, inventor, 
           applicant, reference)
         puts "No.#{_no}: #{id} - Insert"  # 專利編號
@@ -118,8 +124,8 @@ def print_Patents()
       # puts "發明人：" + inventor
       # puts "申請人：" + applicant
       # puts "參考文獻：" + reference
-      # puts "專利權始日：" + patent.find('td.sum').text
-      # puts "專利權止日：" + patent.find('td.sum').text
+      # puts "專利權始日："
+      # puts "專利權止日："
     end
   end
 end
