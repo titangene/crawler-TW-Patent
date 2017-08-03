@@ -86,18 +86,27 @@ def print_Patents()
     _no = index + 1 + (@p_page - 1) * @items_per_page
     _no = "%04d" % _no
     if @start_page <= _no.to_i
-      id = patent.find('td.sumtd2_PN a').text
-      name = patent.find('td.sumtd2_TI').text
-      application_date = patent.find('td.sumtd2_AD').text
-      ipc = patent.find('td.sumtd2_IC').text
-      loc = patent.find('td.sumtd2_IQ').text
-      inventor = patent.find('td.sumtd2_IV').text
-      applicant = patent.find('td.sumtd2_PA').text
-      reference = patent.find('td.sumtd2_CI').text
+      id = patent.find('td.sumtd2_PN a').text               # 專利編號
+      announcement_date = patent.find('td.sumtd2_ID').text  # 公告/公開日
+      application_id = patent.find('td.sumtd2_AN').text     # 申請號
+      name = patent.find('td.sumtd2_TI').text               # 專利名稱
+      application_date = patent.find('td.sumtd2_AD').text   # 申請日
+      ipc = patent.find('td.sumtd2_IC').text                # 國際分類號/IPC
+      loc = patent.find('td.sumtd2_IQ').text                # 設計分類號/LOC
+      bulletin_period = patent.find('td.sumtd2_VL').text    # 公報卷期
+      inventor = patent.find('td.sumtd2_IV').text           # 發明人
+      applicant = patent.find('td.sumtd2_PA').text          # 申請人
+      agent = patent.find('td.sumtd2_LX').text              # 代理人
+      priority = patent.find('td.sumtd2_PR').text           # 優先權
+      reference = patent.find('td.sumtd2_CI').text          # 參考文獻
+      summary = patent.find('td.sumtd2_AB').text            # 摘要
 
       # 如果沒有該欄位沒資料就設為 NULL
       ipc = ipc == "" ? nil : ipc
       loc = loc == "" ? nil : loc
+      bulletin_period = bulletin_period == "" ? nil : bulletin_period
+      agent = agent == "" ? nil : agent
+      priority = priority == "" ? nil : priority
 
       @referenceFilterAry.each { |referenceFilter|
         if reference == referenceFilter
@@ -108,12 +117,12 @@ def print_Patents()
 
       # 如果 DB 沒有此專利就新增，如果已有就更新
       if @db_select.execute(id).count == 0
-        @db_insert.execute(id, name, application_date, ipc, loc, inventor, 
-          applicant, reference)
+        @db_insert.execute(id, name, application_date, announcement_date, application_id, 
+          ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary)
         puts "No.#{_no}: #{id} - Insert"  # 專利編號
       else
-        @db_update.execute(name, application_date, ipc, loc, inventor, 
-          applicant, reference, id)
+        @db_update.execute(name, application_date, announcement_date, application_id, 
+          ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary, id)
         puts "No.#{_no}: #{id} - Update"  # 專利編號
       end
       

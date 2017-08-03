@@ -8,14 +8,16 @@ MYSQL_OPTIONS = {
   :encoding => 'utf8'       # 編碼
 }
 
-@insertSQL = "insert into crawler(id, name, application_date, IPC, LOC, 
-inventor, applicant, reference, patent_start_date, patent_stop_date) 
-values(?, ?, ?, ?, ?, ?, ?, ?, null, null)"
+@insertSQL = "insert into crawler(id, name, application_date, 
+announcement_date, application_id, IPC, LOC, bulletin_period, inventor, applicant, 
+agent, priority, reference, summary, patent_start_date, patent_stop_date) 
+values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, null, null)"
 
-@selectSQL = "select * from crawler where id=?"
+@selectSQL = "select id from crawler where id=?"
 
-@updateSQL = "update crawler set name=?, application_date=?, IPC=?, LOC=?, 
-inventor=?, applicant=?, reference=? where id=?"
+@updateSQL = "update crawler set name=? ,application_date=? ,announcement_date=? 
+,application_id=? ,IPC=? ,LOC=? ,bulletin_period=? ,inventor=? ,applicant=? ,agent=? 
+,priority=? ,reference=? ,summary=? where id=?"
 
 def mySQL_Prepare()
   mysql_db = Mysql2::Client.new(MYSQL_OPTIONS)
