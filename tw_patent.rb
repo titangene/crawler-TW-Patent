@@ -84,7 +84,6 @@ def print_Patents()
   patents = all('tr.sumtr1')
   patents.each_with_index do |patent, index|
     _no = index + 1 + (@p_page - 1) * @items_per_page
-    _no = "%04d" % _no
     if @start_page <= _no.to_i
       id = patent.find('td.sumtd2_PN a').text               # 專利編號
       announcement_date = patent.find('td.sumtd2_ID').text  # 公告/公開日
@@ -117,13 +116,13 @@ def print_Patents()
 
       # 如果 DB 沒有此專利就新增，如果已有就更新
       if @db_select.execute(id).count == 0
+        puts "No.#{_no}: #{id} - Insert"  # 專利編號
         @db_insert.execute(id, name, application_date, announcement_date, application_id, 
           ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary)
-        puts "No.#{_no}: #{id} - Insert"  # 專利編號
       else
+        puts "No.#{_no}: #{id} - Update"  # 專利編號
         @db_update.execute(name, application_date, announcement_date, application_id, 
           ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary, id)
-        puts "No.#{_no}: #{id} - Update"  # 專利編號
       end
       
       # puts "專利名稱：" + name
