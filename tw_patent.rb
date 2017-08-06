@@ -78,6 +78,7 @@ page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
 _sleep(3, 21, 'tr.sumtr1')
 
 @referenceFilterAry = ["", " ", "無", "TW無"]
+@isDataRepeat = true
 
 def print_Patents()
   # 列印所有專利資料
@@ -114,15 +115,19 @@ def print_Patents()
         end
       }
 
+      if @isDataRepeat && @db_select.execute(id).count == 0
+        @isDataRepeat = false
+      end
+
       # 如果 DB 沒有此專利就新增，如果已有就更新
-      if @db_select.execute(id).count == 0
-        puts "No.#{_no}: #{id} - Insert"  # 專利編號
-        @db_insert.execute(id, name, application_date, announcement_date, application_id, 
-          ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary)
-      else
+      if @isDataRepeat
         puts "No.#{_no}: #{id} - Update"  # 專利編號
         @db_update.execute(name, application_date, announcement_date, application_id, 
           ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary, id)
+      else
+        puts "No.#{_no}: #{id} - Insert"  # 專利編號
+        @db_insert.execute(id, name, application_date, announcement_date, application_id, 
+          ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary)
       end
       
       # puts "專利名稱：" + name
@@ -142,7 +147,7 @@ def get_CurrentPage()
   # 抓取到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
   pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
   current_page = pages[0]
-  puts "============ 第 #{current_page} 頁 ============="
+  puts "=========== 第 #{current_page} 頁 ==========="
 end
 
 # 設定起始爬取頁面
@@ -167,7 +172,7 @@ patent_count = find("td.content font[style='color:red']:nth-child(2)").text
 # 爬到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
 pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
 all_page = pages[1]
-puts "--- 共 #{patent_count} 筆 | 共 #{all_page} 頁 ---"
+puts "--- 共 #{patent_count} 筆 / 共 #{all_page} 頁 ---"
 
 i = _start_page
 while i <= print_pages do
