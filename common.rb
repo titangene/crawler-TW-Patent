@@ -29,3 +29,17 @@ def _sleep_has_content(t, t_max, css, content)
     exit
   end
 end
+
+def time_diff(start_time, end_time)
+  _time = (start_time - end_time).abs
+
+  minutes, seconds = _time.divmod(60)
+  seconds = seconds.floor
+  hours, minutes = minutes.divmod(60)
+  days, hours = hours.divmod(24)
+  months, days = days.divmod(30.4)
+  days = days.floor
+  weeks, days = days.divmod(7)
+
+  "#{months}M #{weeks}w #{days}d #{hours}h #{minutes}m #{seconds}s"
+end
