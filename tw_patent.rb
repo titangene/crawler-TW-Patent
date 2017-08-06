@@ -42,6 +42,10 @@ if @start_page == 1
   puts "value 3: Please input start crawling the page (optional), Default: 1"
 end
 
+# 紀錄爬蟲的開始時間 (2017-08-06 18:00:27)
+crawler_StartTime = Time.now
+puts "#{crawler_StartTime.strftime('%F %T')} - Start Time"
+
 # 中華民國專利資訊檢索系統 首頁
 url = "http://twpat2.tipo.gov.tw/tipotwoc/tipotwkm"
 visit(url)
@@ -178,12 +182,40 @@ i = _start_page
 while i <= print_pages do
 # while i < all_page - 1 do
   get_CurrentPage()
+  # 紀錄爬該頁的開始時間
+  crawler_page_StartTime = Time.now
+  puts "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
+
   if _start_page <= i
     print_Patents()
   end
+
+  # 紀錄爬該頁的結束時間
+  crawler_page_EndTime = Time.now
+  puts "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
+  puts "#{crawler_page_EndTime.strftime('%F %T')} - Page End Time"
+  # 計算爬一頁所需的時間
+  crawler_page_TotalTime = time_diff(crawler_page_StartTime, crawler_page_EndTime, true)
+  puts "#{crawler_page_TotalTime} - Page Total Time"
+  # 計算到目前為止所花的時間
+  crawler_Current_TotalTime = time_diff(crawler_StartTime, crawler_page_EndTime, false)
+  puts "#{crawler_Current_TotalTime} - Current Time"
+
   # 下一頁
   @p_page += 1
   page.execute_script("document.getElementsByName('_IMG_次頁')[0].click()")
   sleep(3)
   i += 1
 end
+
+puts "============================="
+# 紀錄爬蟲的結束時間
+crawler_EndTime = Time.now
+puts "#{crawler_StartTime.strftime('%F %T')} - Start Time"
+puts "#{crawler_EndTime.strftime('%F %T')} - End Time"
+# 計算爬蟲所需的時間
+crawler_TotalTime = time_diff(crawler_StartTime, crawler_EndTime, false)
+puts "#{crawler_TotalTime} - Total Time"
+
+crawler_page_AVG_time = getCrawler_page_AVG_time()
+puts "#{crawler_page_AVG_time} - Page AVG Time"
