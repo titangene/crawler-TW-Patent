@@ -1,5 +1,8 @@
 require 'capybara'
 
+@time_ary = []
+@time_AVG = 0
+
 def _sleep(t, t_max, css)
   time = 0
   while !page.has_selector?(css) do
@@ -30,9 +33,14 @@ def _sleep_has_content(t, t_max, css, content)
   end
 end
 
-def time_diff(start_time, end_time)
-  _time = (start_time - end_time).abs
+def time_diff(start_time, end_time, save)
+  _time = (start_time - end_time).abs.floor
+  @time_ary << _time if save
 
+  time_format(_time)
+end
+
+def time_format(_time)
   minutes, seconds = _time.divmod(60)
   seconds = seconds.floor
   hours, minutes = minutes.divmod(60)
@@ -42,4 +50,13 @@ def time_diff(start_time, end_time)
   weeks, days = days.divmod(7)
 
   "#{months}M #{weeks}w #{days}d #{hours}h #{minutes}m #{seconds}s"
+end
+
+def getCrawler_page_AVG_time()
+  @time_ary.each do |_time|
+    @time_AVG += _time
+  end
+  
+  _time_AVG = @time_AVG / @time_ary.count
+  time_format(_time_AVG)
 end
