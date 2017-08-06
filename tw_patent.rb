@@ -12,35 +12,34 @@ end
 
 mySQL_Prepare()
 
-print_pages = ARGV[0]   # 爬取頁數
+print_pages = ARGV[0].to_i   # 爬取頁數
 print_pages ||= 1
-print_pages = print_pages.to_i
 
-@items_per_page = ARGV[1]   # 每頁顯示筆數
-@items_per_page ||= 10
-@items_per_page = @items_per_page.to_i
+@start_item = ARGV[1].to_i  # 起始爬取頁面
+@start_item ||= 1
 
-@start_page = ARGV[2]  # 起始爬取頁面
-@start_page ||= 1
-@start_page = @start_page.to_i
+@items_per_page = ARGV[2].to_i   # 每頁顯示筆數
+@items_per_page ||= 100
 
 if @items_per_page != 10 && @items_per_page != 20 && @items_per_page != 30 &&
    @items_per_page != 40 && @items_per_page != 50 && @items_per_page != 100
-  puts "value 2: Please input items per page (10/20/30/40/50/100), Default: 10"
+  puts "param 3: Please input items per page (10/20/30/40/50/100), Default: 10"
+  exit
+end
+
+if @start_item > @items_per_page * print_pages
+  puts "param 2: Please input start crawling the page (optional), Default: 1"
   exit
 end
 
 if print_pages == 1
-  puts "value 1: Please input the number of pages printed (optional), Default: 1"
+  puts "param 1: Please input the number of pages printed (optional), Default: 1"
 end
 
-if @items_per_page == 10
-  puts "value 2: Please input items per page (10/20/30/40/50/100), Default: 10"
+if @start_item == 1
+  puts "param 2: Please input start crawling the page (optional), Default: 1"
 end
 
-if @start_page == 1
-  puts "value 3: Please input start crawling the page (optional), Default: 1"
-end
 
 # 紀錄爬蟲的開始時間 (2017-08-06 18:00:27)
 crawler_StartTime = Time.now
@@ -89,7 +88,7 @@ def print_Patents()
   patents = all('tr.sumtr1')
   patents.each_with_index do |patent, index|
     _no = index + 1 + (@p_page - 1) * @items_per_page
-    if @start_page <= _no.to_i
+    if @start_item <= _no.to_i
       id = patent.find('td.sumtd2_PN a').text               # 專利編號
       announcement_date = patent.find('td.sumtd2_ID').text  # 公告/公開日
       application_id = patent.find('td.sumtd2_AN').text     # 申請號
@@ -148,6 +147,7 @@ def print_Patents()
 end
 
 def get_CurrentPage()
+  _sleep(3, 21, "td.content font[style='color:red']:nth-child(3)")
   # 抓取到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
   pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
   current_page = pages[0]
@@ -155,18 +155,18 @@ def get_CurrentPage()
 end
 
 # 設定起始爬取頁面
-if @start_page == 1
-  _start_page = 1
+if @start_item == 1
+  _start_item = 1
   @p_page = 1
 else
-  _page_quotient = @start_page / @items_per_page
-  _page_remainder = @start_page % @items_per_page
+  _page_quotient = @start_item / @items_per_page
+  _page_remainder = @start_item % @items_per_page
 
-  _start_page = (_page_remainder != 0 && _page_remainder < @items_per_page) ? 
+  _start_item = (_page_remainder != 0 && _page_remainder < @items_per_page) ? 
     _page_quotient + 1 : _page_quotient
-  @p_page = _start_page
+  @p_page = _start_item
   # 跳頁
-  find('input.jpage').set(_start_page)
+  find('input.jpage').set(_start_item)
   find("td[valign='bottom'] input[title='顯示結果']").click
   sleep(3)
 end
@@ -178,7 +178,7 @@ pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
 all_page = pages[1]
 puts "--- 共 #{patent_count} 筆 / 共 #{all_page} 頁 ---"
 
-i = _start_page
+i = _start_item
 while i <= print_pages do
 # while i < all_page - 1 do
   get_CurrentPage()
@@ -186,7 +186,7 @@ while i <= print_pages do
   crawler_page_StartTime = Time.now
   puts "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
 
-  if _start_page <= i
+  if _start_item <= i
     print_Patents()
   end
 
@@ -216,6 +216,6 @@ puts "#{crawler_EndTime.strftime('%F %T')} - End Time"
 # 計算爬蟲所需的時間
 crawler_TotalTime = time_diff(crawler_StartTime, crawler_EndTime, false)
 puts "#{crawler_TotalTime} - Total Time"
-
+# 計算爬每頁平均所需的時間
 crawler_page_AVG_time = getCrawler_page_AVG_time()
 puts "#{crawler_page_AVG_time} - Page AVG Time"
