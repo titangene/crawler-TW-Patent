@@ -23,27 +23,32 @@ print_pages ||= 1
 
 if @items_per_page != 10 && @items_per_page != 20 && @items_per_page != 30 &&
    @items_per_page != 40 && @items_per_page != 50 && @items_per_page != 100
-  puts "param 3: Please input items per page (10/20/30/40/50/100), Default: 10"
+  errorTxt = "param 3: Please input items per page (10/20/30/40/50/100), Default: 10"
+  saveLogAndPrintLog(errorTxt)
   exit
 end
 
 if @start_item > @items_per_page * print_pages
-  puts "param 2: Please input start crawling the page (optional), Default: 1"
+  errorTxt = "param 2: Please input start crawling the page (optional), Default: 1"
+  saveLogAndPrintLog(errorTxt)
   exit
 end
 
 if print_pages == 1
-  puts "param 1: Please input the number of pages printed (optional), Default: 1"
+  warringTxt = "param 1: Please input the number of pages printed (optional), Default: 1"
+  saveLogAndPrintLog(warringTxt)
 end
 
 if @start_item == 1
-  puts "param 2: Please input start crawling the page (optional), Default: 1"
+  warringTxt = "param 2: Please input start crawling the page (optional), Default: 1"
+  saveLogAndPrintLog(warringTxt)
 end
 
 
 # 紀錄爬蟲的開始時間 (2017-08-06 18:00:27)
 crawler_StartTime = Time.now
-puts "#{crawler_StartTime.strftime('%F %T')} - Start Time"
+printTxt = "#{crawler_StartTime.strftime('%F %T')} - Start Time"
+saveLogAndPrintLog(printTxt)
 
 # 中華民國專利資訊檢索系統 首頁
 url = "http://twpat2.tipo.gov.tw/tipotwoc/tipotwkm"
@@ -63,18 +68,21 @@ find_field('_1_2_r_6_2').find("option[value='#{d_min}']").click
 find_field('_1_2_r_8_4').find("option[value='#{y_max}']").click
 find_field('_1_2_r_12_2').find("option[value='#{m_max}']").click
 find_field('_1_2_r_14_2').find("option[value='#{d_max}']").click
-puts "專利公開日：#{y_min}/#{m_min}/#{d_min} ~ #{y_max}/#{m_max}/#{d_max}"
+printTxt = "專利公開日：#{y_min}/#{m_min}/#{d_min} ~ #{y_max}/#{m_max}/#{d_max}"
+saveLogAndPrintLog(printTxt)
 
 # 將所有 專利欄位 打勾
 patent_fields = all('table.TERM_0_11_S input')
 patent_fields.each do |patent_field|
   patent_field.set(true)
 end
-puts "專利欄位：全"
+printTxt = "專利欄位：全"
+saveLogAndPrintLog(printTxt)
 
 # 每頁顯示筆數：10/20/30/40/50/100
 find_field('_0_7_o_1').find("option[value='#{@items_per_page}']").click
-puts "每頁顯示筆數：#{@items_per_page}"
+printTxt = "每頁顯示筆數：#{@items_per_page}"
+saveLogAndPrintLog(printTxt)
 
 # 開始搜尋
 page.execute_script("document.getElementsByName('_IMG_檢索2%m')[0].click()")
@@ -124,11 +132,13 @@ def print_Patents()
 
       # 如果 DB 沒有此專利就新增，如果已有就更新
       if @isDataRepeat
-        puts "No.#{_no}: #{id} - Update"  # 專利編號
+        printTxt = "No.#{_no}: #{id} - Update"  # 專利編號
+        saveLogAndPrintLog(printTxt)
         @db_update.execute(name, application_date, announcement_date, application_id, 
           ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary, id)
       else
-        puts "No.#{_no}: #{id} - Insert"  # 專利編號
+        printTxt = "No.#{_no}: #{id} - Insert"  # 專利編號
+        saveLogAndPrintLog(printTxt)
         @db_insert.execute(id, name, application_date, announcement_date, application_id, 
           ipc, loc, bulletin_period, inventor, applicant, agent, priority, reference, summary)
       end
@@ -151,7 +161,8 @@ def get_CurrentPage()
   # 抓取到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
   pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
   current_page = pages[0]
-  puts "=========== 第 #{current_page} 頁 ==========="
+  printTxt = "=========== 第 #{current_page} 頁 ==========="
+  saveLogAndPrintLog(printTxt)
 end
 
 # 設定起始爬取頁面
@@ -176,7 +187,8 @@ patent_count = find("td.content font[style='color:red']:nth-child(2)").text
 # 爬到的內容："1/12462"，利用 "/" 可分為 目前頁數 和 總頁數
 pages = find("td.content font[style='color:red']:nth-child(3)").text.split("/")
 all_page = pages[1]
-puts "--- 共 #{patent_count} 筆 / 共 #{all_page} 頁 ---"
+printTxt = "--- 共 #{patent_count} 筆 / 共 #{all_page} 頁 ---"
+saveLogAndPrintLog(printTxt)
 
 i = _start_item
 while i <= print_pages do
@@ -184,7 +196,8 @@ while i <= print_pages do
   get_CurrentPage()
   # 紀錄爬該頁的開始時間
   crawler_page_StartTime = Time.now
-  puts "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
+  printTxt = "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
+  saveLogAndPrintLog(printTxt)
 
   if _start_item <= i
     print_Patents()
@@ -192,14 +205,18 @@ while i <= print_pages do
 
   # 紀錄爬該頁的結束時間
   crawler_page_EndTime = Time.now
-  puts "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
-  puts "#{crawler_page_EndTime.strftime('%F %T')} - Page End Time"
+  printTxt = "#{crawler_page_StartTime.strftime('%F %T')} - Page Start Time"
+  saveLogAndPrintLog(printTxt)
+  printTxt = "#{crawler_page_EndTime.strftime('%F %T')} - Page End Time"
+  saveLogAndPrintLog(printTxt)
   # 計算爬一頁所需的時間
   crawler_page_TotalTime = time_diff(crawler_page_StartTime, crawler_page_EndTime, true)
-  puts "#{crawler_page_TotalTime} - Page Total Time"
+  printTxt = "#{crawler_page_TotalTime} - Page Total Time"
+  saveLogAndPrintLog(printTxt)
   # 計算到目前為止所花的時間
   crawler_Current_TotalTime = time_diff(crawler_StartTime, crawler_page_EndTime, false)
-  puts "#{crawler_Current_TotalTime} - Current Time"
+  printTxt = "#{crawler_Current_TotalTime} - Current Time"
+  saveLogAndPrintLog(printTxt)
 
   # 下一頁
   @p_page += 1
@@ -208,14 +225,19 @@ while i <= print_pages do
   i += 1
 end
 
-puts "============================="
+printTxt = "============================="
+saveLogAndPrintLog(printTxt)
 # 紀錄爬蟲的結束時間
 crawler_EndTime = Time.now
-puts "#{crawler_StartTime.strftime('%F %T')} - Start Time"
-puts "#{crawler_EndTime.strftime('%F %T')} - End Time"
+printTxt = "#{crawler_StartTime.strftime('%F %T')} - Start Time"
+saveLogAndPrintLog(printTxt)
+printTxt = "#{crawler_EndTime.strftime('%F %T')} - End Time"
+saveLogAndPrintLog(printTxt)
 # 計算爬蟲所需的時間
 crawler_TotalTime = time_diff(crawler_StartTime, crawler_EndTime, false)
-puts "#{crawler_TotalTime} - Total Time"
+printTxt = "#{crawler_TotalTime} - Total Time"
+saveLogAndPrintLog(printTxt)
 # 計算爬每頁平均所需的時間
 crawler_page_AVG_time = getCrawler_page_AVG_time()
-puts "#{crawler_page_AVG_time} - Page AVG Time"
+printTxt = "#{crawler_page_AVG_time} - Page AVG Time"
+saveLogAndPrintLog("#{printTxt}\n\n\n")

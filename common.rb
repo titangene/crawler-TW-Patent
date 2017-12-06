@@ -60,3 +60,11 @@ def getCrawler_page_AVG_time()
   _time_AVG = @time_AVG / @time_ary.count
   time_format(_time_AVG)
 end
+
+def saveLogAndPrintLog(logTxt)
+  crawler_NowTime = Time.now
+  log = "#{crawler_NowTime.strftime('%F %T')} ~~ \n#{logTxt}\n"
+  puts logTxt
+  logFileName = "./tw_patent#{crawler_NowTime.strftime('%F')}.log"
+  File.open(logFileName, "a") { |f| f.write("#{log}\n") }
+end
